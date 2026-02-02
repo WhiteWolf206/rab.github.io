@@ -24,11 +24,29 @@
     .container {
       padding: 30px;
       max-width: 500px;
+      position: relative;
+    }
+
+    .heart {
+      font-size: 60px;
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+      animation: float 2s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
     }
 
     h1 {
       font-size: 36px;
       margin-bottom: 40px;
+      margin-top: 20px;
     }
 
     .buttons {
@@ -74,6 +92,8 @@
       justify-content: center;
       align-items: center;
       z-index: 10;
+      overflow: auto;
+      padding: 20px;
     }
 
     .popup {
@@ -82,32 +102,56 @@
       padding: 30px;
       border-radius: 20px;
       max-width: 90%;
-      width: 400px;
+      width: auto;
+      min-width: 300px;
+      max-width: 600px;
       text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      margin: auto;
     }
 
     .popup h2 {
       font-size: 32px;
       margin-bottom: 20px;
+      color: #6a0dad;
     }
 
     .gif-box {
-      width: 100%;
-      height: 220px;
+      max-width: 100%;
       border-radius: 15px;
       background: #ddd;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #777;
-      font-size: 16px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    .gif-box img {
+      max-width: 100%;
+      max-height: 400px;
+      height: auto;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .blocked-popup {
+      background: linear-gradient(135deg, #ff4757, #ff3838);
+      color: white;
+    }
+
+    .blocked-popup h2 {
+      color: white;
+      font-size: 42px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>Rabab, will you be my Valentine’s 💜</h1>
+    <div class="heart">💜</div>
+    <h1>Rabab, will you be my Valentine's 💜</h1>
 
     <div class="buttons">
       <button id="yesBtn">Yes</button>
@@ -141,20 +185,50 @@
         popup.innerHTML = "<h2>you're old anyways 😛</h2>";
         overlay.style.display = "flex";
       }
+      
+      // NEW: Add popup at 30 clicks
+      if (noCount === 30) {
+        popup.innerHTML = `
+          <div class="blocked-popup">
+            <h2>WOW YOU'RE BLOCKED</h2>
+            <div class="gif-box">
+              <img src="https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif" alt="Blocked GIF">
+            </div>
+            <p style="margin-top: 20px; font-size: 18px;">Too many nos... you're blocked! 😂</p>
+          </div>
+        `;
+        overlay.style.display = "flex";
+        
+        // Disable the no button after 30 clicks
+        noBtn.disabled = true;
+        noBtn.style.opacity = "0.5";
+        noBtn.style.cursor = "not-allowed";
+      }
     });
 
     yesBtn.addEventListener("click", () => {
       popup.innerHTML = `
         <h2>LETS GOOOOOO 🎉💜</h2>
         <div class="gif-box">
-          <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWo2M3B4dnV4N2sxNzNyYXdmZHQ0Mnl0cWR5c200aGx6cWIzMjhzeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/tHIRLHtNwxpjIFqPdV/giphy.gif" style="width:100%; border-radius:15px;">
+          <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWo2M3B4dnV4N2sxNzNyYXdmZHQ0Mnl0cWR5c200aGx6cWIzMjhzeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/tHIRLHtNwxpjIFqPdV/giphy.gif" alt="Celebration GIF">
         </div>
+        <p style="margin-top: 20px; font-size: 18px; color: #6a0dad;">You made the right choice! 💜</p>
       `;
       overlay.style.display = "flex";
     });
 
-    overlay.addEventListener("click", () => {
-      overlay.style.display = "none";
+    overlay.addEventListener("click", (e) => {
+      // Only close if clicking on the overlay background, not the popup itself
+      if (e.target === overlay) {
+        overlay.style.display = "none";
+      }
+    });
+
+    // Also allow closing with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        overlay.style.display = 'none';
+      }
     });
   </script>
 
